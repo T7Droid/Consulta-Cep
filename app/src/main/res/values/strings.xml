@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Pesquisar por CEP ou Endereço</string>
+
+    <string-array name="estados">
+        <item>RO</item>
+        <item>AC</item>
+        <item>AM</item>
+        <item>RR</item>
+        <item>PA</item>
+        <item>AP</item>
+        <item>TO</item>
+        <item>MA</item>
+        <item>PI</item>
+        <item>CE</item>
+        <item>RN</item>
+        <item>PB</item>
+        <item>PE</item>
+        <item>AL</item>
+        <item>SE</item>
+        <item>BA</item>
+        <item>MG</item>
+        <item>ES</item>
+        <item>RJ</item>
+        <item>SP</item>
+        <item>PR</item>
+        <item>SC</item>
+        <item>RS</item>
+        <item>MS</item>
+        <item>MT</item>
+        <item>GO</item>
+        <item>DF</item>
+    </string-array>
+
+    <string-array name="cidades">
+        <item>Santos</item>
+        <item>São Vicente</item>
+        <item>Praia Grande</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="15dp"
+    tools:context=".Fragment.EnderecosFragment">
+
+    <LinearLayout
+        android:id="@+id/linearPesquisarEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spnestados"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:entries="@array/estados"
+                android:padding="8dp"/>
+
+            <Spinner
+                android:id="@+id/spncidades"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:entries="@array/cidades"
+                android:layout_margin="8dp"
+                android:padding="8dp"/>
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etendereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:maxLines="1"
+            android:textStyle="bold"
+            android:inputType="textCapWords"
+            android:textColor="@color/purple_700"
+            android:hint="Rua ou Avenida"
+            android:fontFamily="@font/ubuntu_bold"
+            android:gravity="center_horizontal"
+            tools:ignore="RtlCompat" />
+
+        <Button
+            android:id="@+id/buttonRecuperarEnd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:fontFamily="@font/ubuntu_bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:textStyle="bold"
+            android:background="@color/purple_700"
+            android:text="Pesquisar Endereço" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearResultadoEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvenderecos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:visibility="visible"
+        android:layout_gravity="bottom">
+
+        <ImageView
+            android:id="@+id/voltar_end"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="70dp"
+            android:layout_marginEnd="25dp"
+            android:visibility="gone"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_item_adapter"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:layout_marginRight="20dp" />
+
+    </FrameLayout>
+</FrameLayout>
