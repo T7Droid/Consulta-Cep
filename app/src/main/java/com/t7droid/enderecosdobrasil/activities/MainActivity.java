@@ -16,32 +16,26 @@ import com.t7droid.enderecosdobrasil.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SmartTabLayout smartTabLayout;
-    private ViewPager viewPager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-       // getWindow().setStatusBarColor(getResources().getColor(R.color.verde));
-
-        smartTabLayout = findViewById(R.id.viewPagerTab);
-        viewPager = findViewById(R.id.viewPager);
+        SmartTabLayout smartTabLayout = findViewById(R.id.viewPagerTab);
+        ViewPager viewPager = findViewById(R.id.viewPager);
 
         //Configurar adapter para abas
         FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(),
                 FragmentPagerItems.with(this)
-                        .add("CEP", PesquisarCEPsFragment.class )
-                        .add("Endereços", EnderecosFragment.class )
-                        .add("Salvos", SalvosFragment.class )
+                        .add("CEP", PesquisarCEPsFragment.class)
+                        .add("Endereços", EnderecosFragment.class)
+                        .add("Salvos", SalvosFragment.class)
                         .create()
         );
 
-        viewPager.setAdapter( adapter );
-        smartTabLayout.setViewPager( viewPager );
+        viewPager.setAdapter(adapter);
+        smartTabLayout.setViewPager(viewPager);
 
     }
 

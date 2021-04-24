@@ -3,6 +3,7 @@ package com.t7droid.enderecosdobrasil.Fragment;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.requisicoes.t7droid.cunsultafacilceps.model.CEP;
 import com.t7droid.enderecosdobrasil.R;
 import com.t7droid.enderecosdobrasil.adapters.EnderecosAdapter;
+import com.t7droid.enderecosdobrasil.api.CEPService;
 import com.t7droid.enderecosdobrasil.helper.RecyclerItemClickListener;
 import com.t7droid.enderecosdobrasil.helper.CepDAO;
 
@@ -45,29 +47,32 @@ import static com.t7droid.enderecosdobrasil.Fragment.PesquisarCEPsFragment.isCon
 
 public class EnderecosFragment extends Fragment {
 
-    View view;
+    private View view;
     private Retrofit retrofitCep;
     private RecyclerView rvEnderecos;
+    private CepDAO dao;
     private LinearLayout linearPesquisaEnd, linearResultadoEnd;
-    Button btnEnd;
-    ImageView voltarend;
-    EnderecosAdapter enderecosAdapter;
-    EditText etEnd;
-    String estadoSelecionado, uf;
-    String cidadeSelecionada;
-    Spinner spnEstados, spnCidades;
-    JSONArray m_jArry;
-    JSONObject obj;
-    ArrayAdapter<String> dataAdapter;
-    List<String> listaDeCidades = new ArrayList<>();
-    List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> listaDeCeps = new ArrayList<>();
-    com.requisicoes.t7droid.cunsultafacilceps.api.CEPService cepService;
-    Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call;
+    private Button btnEnd;
+    private ImageView voltarend;
+    private EnderecosAdapter enderecosAdapter;
+    private EditText etEnd;
+    private String estadoSelecionado, uf;
+    private String cidadeSelecionada;
+    private Spinner spnEstados, spnCidades;
+    private JSONArray m_jArry;
+    private JSONObject obj;
+    private AlertDialog alerta;
+    private ArrayAdapter<String> dataAdapter;
+    private List<String> listaDeCidades = new ArrayList<>();
+    private List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> listaDeCeps = new ArrayList<>();
+    private CEPService cepService;
+    private Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call;
+    private List<CEP> listaSalvaNoBanco = new ArrayList<>();
+
 
     public EnderecosFragment() {
 
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +80,7 @@ public class EnderecosFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_endereco, container, false);
 
+        //Configurando Retrofit
         retrofitCep = new Retrofit.Builder()
                 .baseUrl("https://viacep.com.br/ws/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -88,15 +94,16 @@ public class EnderecosFragment extends Fragment {
             voltarend.setVisibility(View.GONE);
 
         });
+
         etEnd = view.findViewById(R.id.etendereco);
         spnEstados = view.findViewById(R.id.spnestados);
         spnCidades = view.findViewById(R.id.spncidades);
-
         rvEnderecos = view.findViewById(R.id.rvenderecos);
         rvEnderecos.setLayoutManager(new LinearLayoutManager(getActivity()));
         rvEnderecos.setHasFixedSize(true);
         enderecosAdapter = new EnderecosAdapter(listaDeCeps, getActivity());
         rvEnderecos.setAdapter(enderecosAdapter);
+
         rvEnderecos.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(),
                 rvEnderecos, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -107,7 +114,7 @@ public class EnderecosFragment extends Fragment {
             @Override
             public void onLongItemClick(View view, int position) {
 
-                CepDAO dao = new CepDAO(getActivity());
+                dao = new CepDAO(getActivity());
                 com.requisicoes.t7droid.cunsultafacilceps.model.CEP novoCep = new CEP();
                 com.requisicoes.t7droid.cunsultafacilceps.model.CEP cep = listaDeCeps.get(position);
 
@@ -137,12 +144,14 @@ public class EnderecosFragment extends Fragment {
                         novoCep.setComplemento("");
                     }
 
-                    if( dao.salvar(novoCep)) {
+                    if (dao.salvar(novoCep)) {
                         enderecosAdapter.notifyDataSetChanged();
                         mensagem("Endereço adicionado aos favoritos");
                     } else {
                         mensagem("Falha ao salvar Endereço");
                     }
+                } else {
+                    mensagem("Esse endereço já está salvo nos favoritos");
                 }
             }
 
@@ -152,11 +161,12 @@ public class EnderecosFragment extends Fragment {
             }
         }));
 
+        //Configurando SpinnerEstados e eSpinnerCidades
         spnEstados.setSelection(19);
-        listaDeCidades.addAll(carregaListaCidades("35")) ;
+        listaDeCidades.addAll(carregaListaCidades("35"));
 
         dataAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_item, listaDeCidades );
+                android.R.layout.simple_spinner_item, listaDeCidades);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCidades.setAdapter(dataAdapter);
 
@@ -179,7 +189,7 @@ public class EnderecosFragment extends Fragment {
 
                 estadoSelecionado = String.valueOf(spnEstados.getAdapter().getItem(position));
 
-                switch (estadoSelecionado){
+                switch (estadoSelecionado) {
 
                     case "RO":
                         estadoSelecionado = "11";
@@ -303,7 +313,7 @@ public class EnderecosFragment extends Fragment {
 
         btnEnd.setOnClickListener(v -> {
             if (isConnected(getActivity())) {
-                if(etEnd.getText().toString().length() >= 3) {
+                if (etEnd.getText().toString().length() >= 3) {
                     recuperarListaDeCEPs();
                     hideKeyboard(getActivity(), etEnd);
                 } else {
@@ -311,12 +321,19 @@ public class EnderecosFragment extends Fragment {
                 }
             } else {
                 Toast.makeText(getActivity(), "Conecte-se a internet", Toast.LENGTH_LONG).show();
+                LayoutInflater li = getLayoutInflater();
+                View view = li.inflate(R.layout.sem_internet, null);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setCancelable(true);
+                builder.setView(view);
+                alerta = builder.create();
+                alerta.show();
             }
         });
 
         linearPesquisaEnd = view.findViewById(R.id.linearPesquisarEndereco);
         linearResultadoEnd = view.findViewById(R.id.linearResultadoEndereco);
-
 
 
         return view;
@@ -354,7 +371,7 @@ public class EnderecosFragment extends Fragment {
                 String codigo_uf = jo_inside.getString("codigo_uf");
 
                 if (codigo_uf.equalsIgnoreCase(estadoSelecionado)) {
-                   listaDeCidades.add(nome);
+                    listaDeCidades.add(nome);
                 }
             }
         } catch (JSONException e) {
@@ -364,9 +381,9 @@ public class EnderecosFragment extends Fragment {
         return listaDeCidades;
     }
 
-    private void recuperarListaDeCEPs(){
+    private void recuperarListaDeCEPs() {
 
-        switch (estadoSelecionado){
+        switch (estadoSelecionado) {
 
             case "11":
                 uf = "RO";
@@ -478,14 +495,15 @@ public class EnderecosFragment extends Fragment {
         }
 
 
-        cepService = retrofitCep.create( com.requisicoes.t7droid.cunsultafacilceps.api.CEPService.class );
-        call = cepService.recuperarListaCEPs(uf +"/"+cidadeSelecionada+"/"+etEnd.getText().toString());
+        cepService = retrofitCep.create(CEPService.class);
+        call = cepService.recuperarListaCEPs(uf + "/" + cidadeSelecionada + "/" + etEnd.getText().toString());
 
         call.enqueue(new Callback<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>>() {
             @Override
             public void onResponse(Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call,
                                    Response<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> response) {
-                if (response.isSuccessful()){
+
+                if (response.isSuccessful()) {
                     enderecosAdapter.clear();
                     enderecosAdapter.notifyDataSetChanged();
                     listaDeCeps = response.body();
@@ -498,10 +516,21 @@ public class EnderecosFragment extends Fragment {
                         voltarend.setVisibility(View.VISIBLE);
 
                         mensagem(listaDeCeps.size() + " resultados encontrados");
+                        dao = new CepDAO(getActivity());
+                        listaSalvaNoBanco = dao.listar();
+
+                        if (!listaSalvaNoBanco.isEmpty()) {
+                            for (CEP cepBaixado : listaDeCeps) {
+                                for (CEP cep : listaSalvaNoBanco) {
+                                    if (cepBaixado.getCep().equals(cep.getCep())) {
+                                        cepBaixado.setSelecionado("true");
+                                    }
+                                }
+                            }
+                        }
 
                         enderecosAdapter.add(listaDeCeps);
                         enderecosAdapter.notifyDataSetChanged();
-
 
                     } else {
                         mensagem("Nenhum resultado encontrado");

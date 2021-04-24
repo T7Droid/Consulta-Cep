@@ -17,7 +17,8 @@ import com.t7droid.enderecosdobrasil.helper.CepDAO;
 
 import java.util.List;
 
-public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyViewHolder>  {
+public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyViewHolder> {
+
     private List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> listaDeCeps;
     com.requisicoes.t7droid.cunsultafacilceps.model.CEP cep;
     Context context;
@@ -29,7 +30,7 @@ public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyVi
 
     @NonNull
     @Override
-    public MyViewHolder  onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemLista = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.enderecos_retornados_adapter, parent, false);
 
@@ -38,9 +39,10 @@ public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyVi
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+
         cep = listaDeCeps.get(position);
 
-        if (cep.getSelecionado().equals("true")){
+        if (cep.getSelecionado().equals("true")) {
             holder.salvar.setImageDrawable(context.getDrawable(R.drawable.estrela_preenchida));
         } else {
             holder.salvar.setImageDrawable(context.getDrawable(R.drawable.estrela_vazia));
@@ -55,10 +57,10 @@ public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyVi
             holder.logradouro.setVisibility(View.GONE);
         }
 
-        if (!cep.getComplemento().equals("")){
+        if (!cep.getComplemento().equals("")) {
             holder.complemento.setVisibility(View.VISIBLE);
-        holder.complemento.setText(Html.fromHtml("Complemento: " + cep.getComplemento()));
-    } else {
+            holder.complemento.setText(Html.fromHtml("Complemento: " + cep.getComplemento()));
+        } else {
             holder.complemento.setVisibility(View.GONE);
         }
         if (!cep.getBairro().equals("")) {
@@ -67,9 +69,9 @@ public class EnderecosAdapter extends RecyclerView.Adapter<EnderecosAdapter.MyVi
         } else {
             holder.bairro.setVisibility(View.GONE);
         }
-      holder.cidade.setText(Html.fromHtml("Cidade: "+cep.getLocalidade()));
-      holder.uf.setText(Html.fromHtml("Estado: "+cep.getUf()));
-      holder.ddd.setText(Html.fromHtml("DDD: "+cep.getDdd()));
+        holder.cidade.setText(Html.fromHtml("Cidade: " + cep.getLocalidade()));
+        holder.uf.setText(Html.fromHtml("Estado: " + cep.getUf()));
+        holder.ddd.setText(Html.fromHtml("DDD: " + cep.getDdd()));
     }
 
     @Override

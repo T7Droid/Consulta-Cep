@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -21,7 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.santalu.maskara.widget.MaskEditText;
 import com.t7droid.enderecosdobrasil.R;
+import com.t7droid.enderecosdobrasil.api.CEPService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +40,20 @@ public class PesquisarCEPsFragment extends Fragment {
     private Button botaoRecuperar;
     private TextView textoResultado;
     private Retrofit retrofitCep;
-    private EditText etcep;
+    private MaskEditText etcep;
     private LinearLayout linearPesquisar;
     private ConstraintLayout linearResultado;
-    View view;
-    ImageView iv;
+    private View view;
+    private AlertDialog alerta;
+    private ImageView iv;
+    private String logradouro, bairro, complemento;
 
     public PesquisarCEPsFragment() {
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
         view = inflater.inflate(R.layout.fragment_pesquisar_cep, container, false);
 
@@ -70,12 +73,22 @@ public class PesquisarCEPsFragment extends Fragment {
 
         botaoRecuperar.setOnClickListener(v -> {
             if (isConnected(getActivity())) {
-                if (!etcep.getText().toString().equals("") && etcep.getText().toString().length() == 8) {
+                if (!etcep.getUnMasked().equals("") && etcep.getUnMasked().length() == 8) {
                     recuperarCEPRetrofit();
                     hideKeyboard(getActivity(), etcep);
                 } else {
                     mensagem("Digite um CEP válido!");
                 }
+            } else {
+                Toast.makeText(getActivity(), "Conecte-se a internet", Toast.LENGTH_LONG).show();
+                LayoutInflater li = getLayoutInflater();
+                View view = li.inflate(R.layout.sem_internet, null);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setCancelable(true);
+                builder.setView(view);
+                alerta = builder.create();
+                alerta.show();
             }
         });
 
@@ -86,32 +99,51 @@ public class PesquisarCEPsFragment extends Fragment {
         Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
     }
 
-    private void recuperarCEPRetrofit(){
+    private void recuperarCEPRetrofit() {
 
-        com.requisicoes.t7droid.cunsultafacilceps.api.CEPService cepService = retrofitCep.create( com.requisicoes.t7droid.cunsultafacilceps.api.CEPService.class );
+        CEPService cepService = retrofitCep.create(CEPService.class);
         Call<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> call = cepService.recuperarCEP(etcep.getText().toString());
 
         call.enqueue(new Callback<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>() {
             @Override
             public void onResponse(Call<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> call, Response<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> response) {
-                if( response.isSuccessful() ){
+                if (response.isSuccessful()) {
                     com.requisicoes.t7droid.cunsultafacilceps.model.CEP cep = response.body();
 
-                    if (cep.getCep()!=null) {
+                    assert cep != null;
+                    if (cep.getCep() != null && cep.getCep() != "") {
+                        if (!cep.getLogradouro().equals("")){
+                            logradouro = "<br>Logradouro: " + cep.getLogradouro() + "<br>";
+                        } else {
+                            logradouro = "";
+                        }
+                        if (!cep.getBairro().equals("")){
+                            bairro = "Bairro: " + cep.getBairro() + "<br>";
+                        } else {
+                            bairro = "";
+                        }
+                        if (!cep.getComplemento().equals("")){
+                            complemento = "Complemento: " + cep.getComplemento() + "<br>";
+                        } else {
+                            complemento = "";
+                        }
+
                         linearPesquisar.setVisibility(View.GONE);
                         linearResultado.setVisibility(View.VISIBLE);
                         textoResultado.setText(Html.fromHtml(
                                 "<font color=#F980238>CEP: " + cep.getCep() + "</font><br><br>" +
-                                        "Logradouro: " + cep.getLogradouro() + "<br>" +
-                                        "Bairro: " + cep.getBairro() + "<br>" +
-                                        "Complemento: " + cep.getComplemento() + "<br>" +
+                                        logradouro +
+                                        bairro +
+                                        complemento +
                                         "Localidade: " + cep.getLocalidade() + "<br>" +
-                                        "UF: " + cep.getUf()+"<br>"+
-                                        "DDD: "+cep.getDdd()+"<br>"+
-                                        "Código IBGE: "+cep.getIbge()));
+                                        "UF: " + cep.getUf() + "<br>" +
+                                        "DDD: " + cep.getDdd() + "<br>" +
+                                        "Código IBGE: " + cep.getIbge()));
                     } else {
                         mensagem("CEP inexistente");
                     }
+                } else {
+                    mensagem("CEP inexistente");
                 }
             }
 
@@ -121,23 +153,25 @@ public class PesquisarCEPsFragment extends Fragment {
             }
         });
     }
-    public void voltar(){
-        if (linearResultado.getVisibility()== View.VISIBLE){
+
+    public void voltar() {
+        if (linearResultado.getVisibility() == View.VISIBLE) {
             linearResultado.setVisibility(View.GONE);
             linearPesquisar.setVisibility(View.VISIBLE);
             etcep.requestFocus();
         }
     }
+
     public static boolean isConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if ( cm != null ) {
+        if (cm != null) {
             NetworkInfo ni = cm.getActiveNetworkInfo();
-
             return ni != null && ni.isConnected();
         }
         return false;
     }
+
     public static void hideKeyboard(Context context, View editText) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);

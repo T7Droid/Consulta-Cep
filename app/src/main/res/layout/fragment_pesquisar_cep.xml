@@ -23,7 +23,7 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <EditText
+            <com.santalu.maskara.widget.MaskEditText
                 android:id="@+id/etcep"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,8 +31,10 @@
                 android:textAlignment="center"
                 android:textSize="24sp"
                 android:maxLines="1"
-                android:maxLength="8"
+                android:maxLength="9"
                 android:textStyle="bold"
+                app:mask="_____-___"
+                app:maskCharacter="_"
                 android:inputType="number"
                 android:textColor="@color/purple_700"
                 android:hint="Digite o cep aqui!"

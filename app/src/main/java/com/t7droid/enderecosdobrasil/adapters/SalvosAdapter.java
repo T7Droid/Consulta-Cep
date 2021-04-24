@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.requisicoes.t7droid.cunsultafacilceps.model.CEP;
@@ -22,16 +20,17 @@ public class SalvosAdapter extends RecyclerView.Adapter<SalvosAdapter.MyViewHold
 
     private List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> listaTarefas;
     private Context context;
-    public SalvosAdapter(List<CEP> lista, FragmentActivity activity) {
+
+    public SalvosAdapter(List<CEP> lista, Context c) {
         this.listaTarefas = lista;
-        this.context = activity;
+        this.context = c;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View itemLista = LayoutInflater.from(parent.getContext())
-                                        .inflate(R.layout.lista_enderecos_salvos_adapter, parent, false);
+                .inflate(R.layout.lista_enderecos_salvos_adapter, parent, false);
 
         return new MyViewHolder(itemLista);
     }
@@ -50,7 +49,7 @@ public class SalvosAdapter extends RecyclerView.Adapter<SalvosAdapter.MyViewHold
             holder.logradouro.setVisibility(View.GONE);
         }
 
-        if (!cep.getComplemento().equals("")){
+        if (!cep.getComplemento().equals("")) {
             holder.complemento.setVisibility(View.VISIBLE);
             holder.complemento.setText(Html.fromHtml("Complemento: " + cep.getComplemento()));
         } else {
@@ -65,7 +64,6 @@ public class SalvosAdapter extends RecyclerView.Adapter<SalvosAdapter.MyViewHold
         holder.cidade.setText(Html.fromHtml("Cidade: " + cep.getLocalidade()));
         holder.uf.setText(Html.fromHtml("Estado: " + cep.getUf()));
         holder.ddd.setText(Html.fromHtml("DDD: " + cep.getDdd()));
-
     }
 
     @Override
@@ -83,6 +81,7 @@ public class SalvosAdapter extends RecyclerView.Adapter<SalvosAdapter.MyViewHold
         TextView ddd;
         TextView complemento;
         ImageView salvo;
+
         public MyViewHolder(View itemView) {
             super(itemView);
 
@@ -96,16 +95,5 @@ public class SalvosAdapter extends RecyclerView.Adapter<SalvosAdapter.MyViewHold
             salvo = itemView.findViewById(R.id.tvsalvo);
 
         }
-    }
-
-    public void clear() {
-        listaTarefas.clear();
-        notifyDataSetChanged();
-    }
-
-    // Add a list of items -- change to type used
-    public void addAll(List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> list) {
-        listaTarefas.addAll(list);
-        notifyDataSetChanged();
     }
 }

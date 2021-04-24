@@ -26,6 +26,7 @@ import com.t7droid.enderecosdobrasil.helper.CepDAO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SalvosFragment extends Fragment {
 
@@ -38,47 +39,43 @@ public class SalvosFragment extends Fragment {
     SwipeRefreshLayout swipeContainer;
 
     public SalvosFragment() {
-        // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
+        // Inflando layout para o Fragment
         View view = inflater.inflate(R.layout.fragment_salvos, container, false);
-        CepDAO cepDAOc = new CepDAO(getActivity() );
+        CepDAO cepDAOc = new CepDAO(getActivity());
         listaTarefas = cepDAOc.listar();
         linearEmpty = view.findViewById(R.id.empty_state);
 
-        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
+        swipeContainer = view.findViewById(R.id.swipeContainer);
 
-                listaTarefas.clear();
-                // ...the data has come back, add new items to your adapter...
-              listaTarefas.addAll(cepDAOc.listar());
-                tarefaAdapter.notifyDataSetChanged();
-             //  tarefaAdapter.addAll(listaTarefas);
+        // Configurando SwipeToRefresh
+        swipeContainer.setOnRefreshListener(() -> {
 
-                if (listaTarefas.size()==0){
-                    linearRecycler.setVisibility(View.GONE);
-                    linearEmpty.setVisibility(View.VISIBLE);
-                } else {
+            listaTarefas.clear();
 
-                    linearRecycler.setVisibility(View.VISIBLE);
-                    linearEmpty.setVisibility(View.GONE);
-                }
-                swipeContainer.setRefreshing(false);
+            //Método para atualizar o adapter após o "refresh"
+            listaTarefas.addAll(cepDAOc.listar());
+            tarefaAdapter.notifyDataSetChanged();
+
+            if (listaTarefas.size() == 0) {
+                linearRecycler.setVisibility(View.GONE);
+                linearEmpty.setVisibility(View.VISIBLE);
+            } else {
+                linearRecycler.setVisibility(View.VISIBLE);
+                linearEmpty.setVisibility(View.GONE);
             }
+            swipeContainer.setRefreshing(false);
         });
 
         linearRecycler = view.findViewById(R.id.linearrecycler);
         recyclerView = view.findViewById(R.id.rvsalvos);
 
-        if (listaTarefas.size() >=1){
+        if (listaTarefas.size() >= 1) {
             linearRecycler.setVisibility(View.VISIBLE);
             linearEmpty.setVisibility(View.GONE);
             carregarListaTarefas(listaTarefas);
@@ -89,7 +86,7 @@ public class SalvosFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.rvsalvos);
 
-        //Adicionar evento de clique
+        //Adicionando evento de clique ao RecyclerView
         recyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(
                         getActivity(),
@@ -98,46 +95,41 @@ public class SalvosFragment extends Fragment {
                             @Override
                             public void onItemClick(View view, int position) {
 
-                                //Recuperar tarefa para edicao
+                                //Recuperar endereço
                                 com.requisicoes.t7droid.cunsultafacilceps.model.CEP cepSelecionada =
-                                        listaTarefas.get( position );
+                                        listaTarefas.get(position);
 
-                                //Envia tarefa para tela adicionar tarefa
+                                //Envia endereço para tela de detalhes
                                 Intent intent = new Intent(getActivity(), DetalhesDosSalvosActivity.class);
-                                intent.putExtra("cepSelecionado", cepSelecionada );
-
-                                startActivity( intent );
+                                intent.putExtra("cepSelecionado", cepSelecionada);
+                                startActivity(intent);
 
                             }
 
                             @Override
                             public void onLongItemClick(View view, int position) {
-                                //Recupera tarefa para deletar
-                                cepSelecionado = listaTarefas.get( position );
+                                //Recupera endereço para deletar
+                                cepSelecionado = listaTarefas.get(position);
 
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
 
                                 //Configura título e mensagem
                                 dialog.setTitle("Confirmar exclusão");
-                                dialog.setMessage("Deseja excluir o endereço: " + cepSelecionado.getCep() + " ?" );
+                                dialog.setMessage("Deseja excluir o endereço: " + cepSelecionado.getCep() + " ?");
 
                                 dialog.setPositiveButton("Sim", (dialog1, which) -> {
 
+                                    if (cepDAOc.deletar(cepSelecionado)) {
 
-                                    if ( cepDAOc.deletar(cepSelecionado) ){
                                         listaTarefas.remove(cepSelecionado);
                                         tarefaAdapter.notifyDataSetChanged();
-                                        Toast.makeText(getActivity(),
-                                                "Sucesso ao excluir tarefa!",
-                                                Toast.LENGTH_SHORT).show();
+                                        mensagem("Sucesso ao excluir tarefa!");
 
-                                    }else {
-                                        Toast.makeText(getActivity(),
-                                                "Erro ao excluir tarefa!",
-                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        mensagem("Erro ao excluir tarefa!");
                                     }
 
-                                    if (listaTarefas.size() >=1){
+                                    if (listaTarefas.size() >= 1) {
                                         linearRecycler.setVisibility(View.VISIBLE);
                                         linearEmpty.setVisibility(View.GONE);
 
@@ -147,7 +139,7 @@ public class SalvosFragment extends Fragment {
                                     }
                                 });
 
-                                dialog.setNegativeButton("Não", null );
+                                dialog.setNegativeButton("Não", null);
 
                                 //Exibir dialog
                                 dialog.create();
@@ -165,20 +157,25 @@ public class SalvosFragment extends Fragment {
 
         return view;
     }
-    public void carregarListaTarefas( List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> tarefas){
 
-        //Listar tarefas
+    private void mensagem(String s) {
+        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+    }
 
-            tarefaAdapter = new SalvosAdapter(tarefas, getActivity());
-            linearEmpty.setVisibility(View.GONE);
+    public void carregarListaTarefas(List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP> tarefas) {
 
-            linearRecycler.setVisibility(View.VISIBLE);
-            //Configurar Recyclerview
-            layoutManager = new LinearLayoutManager(getActivity());
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayout.VERTICAL));
-            recyclerView.setAdapter(tarefaAdapter);
+        //Listar endereços
+        tarefaAdapter = new SalvosAdapter(tarefas, getActivity());
+        linearEmpty.setVisibility(View.GONE);
+
+        linearRecycler.setVisibility(View.VISIBLE);
+
+        //Configurar Recyclerview
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(Objects.requireNonNull(getActivity()), LinearLayout.VERTICAL));
+        recyclerView.setAdapter(tarefaAdapter);
 
     }
 }
