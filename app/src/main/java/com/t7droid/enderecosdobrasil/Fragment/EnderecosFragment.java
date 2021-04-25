@@ -1,6 +1,7 @@
 package com.t7droid.enderecosdobrasil.Fragment;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -42,6 +43,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.t7droid.enderecosdobrasil.Fragment.PesquisarCEPsFragment.hideKeyboard;
 import static com.t7droid.enderecosdobrasil.Fragment.PesquisarCEPsFragment.isConnected;
 
@@ -68,6 +70,8 @@ public class EnderecosFragment extends Fragment {
     private CEPService cepService;
     private Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call;
     private List<CEP> listaSalvaNoBanco = new ArrayList<>();
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
 
     public EnderecosFragment() {
@@ -161,8 +165,11 @@ public class EnderecosFragment extends Fragment {
             }
         }));
 
-        //Configurando SpinnerEstados e eSpinnerCidades
-        spnEstados.setSelection(19);
+        //Recuperando ultíma posição selecionada do SpinnerEstados
+        pref = getActivity().getApplicationContext().getSharedPreferences("pref", MODE_PRIVATE);
+        int posicaoDoEstadoSalva = pref.getInt("posicaoEstado", 19);
+
+        spnEstados.setSelection(posicaoDoEstadoSalva);
         listaDeCidades.addAll(carregaListaCidades("35"));
 
         dataAdapter = new ArrayAdapter<>(getActivity(),
@@ -170,11 +177,21 @@ public class EnderecosFragment extends Fragment {
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCidades.setAdapter(dataAdapter);
 
+        //Recuperando última posição selecionada no SpinnerCidades no SharedPreferences
+        pref = getActivity().getApplicationContext().getSharedPreferences("pref", MODE_PRIVATE);
+        int posicaoDaCidadeSalva = pref.getInt("posicaoCidade", 1);
+        spnCidades.setSelection(posicaoDaCidadeSalva);
+
         spnCidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 cidadeSelecionada = String.valueOf(spnCidades.getAdapter().getItem(position));
                 etEnd.requestFocus();
+
+                //Salvando posição do SpinnerCidades
+                editor = getActivity().getApplicationContext().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                editor.putInt("posicaoCidade", position);
+                editor.apply();
             }
 
             @Override
@@ -188,6 +205,11 @@ public class EnderecosFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 estadoSelecionado = String.valueOf(spnEstados.getAdapter().getItem(position));
+
+                //Salvando posição do SpinnerCidades no SharedPreferences
+                editor = getActivity().getApplicationContext().getSharedPreferences("pref", MODE_PRIVATE).edit();
+                editor.putInt("posicaoEstado", position);
+                editor.apply();
 
                 switch (estadoSelecionado) {
 
