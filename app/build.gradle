@@ -10,18 +10,26 @@ android {
         applicationId "com.t7droid.enderecosdobrasil"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
+        versionCode 2
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -51,7 +59,7 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.7.0'
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-
+    implementation 'com.google.android.play:core:1.10.0'
     implementation 'com.github.santalu:maskara:1.0.0'
 
 }

@@ -16,7 +16,7 @@
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN"
-                    android:label=""/>
+                    android:label="Consulte pelo cep ou endereço"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

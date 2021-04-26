@@ -1,5 +1,7 @@
 package com.t7droid.enderecosdobrasil.api;
 
+import androidx.annotation.Keep;
+
 import com.requisicoes.t7droid.cunsultafacilceps.model.CEP;
 
 import java.util.List;

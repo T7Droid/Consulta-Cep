@@ -1,7 +1,10 @@
 package com.requisicoes.t7droid.cunsultafacilceps.model;
 
+import androidx.annotation.Keep;
+
 import java.io.Serializable;
 
+@Keep
 public class CEP implements Serializable {
 
     private Long id;

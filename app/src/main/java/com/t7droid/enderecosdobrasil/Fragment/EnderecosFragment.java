@@ -2,6 +2,7 @@ package com.t7droid.enderecosdobrasil.Fragment;
 
 
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -117,46 +118,7 @@ public class EnderecosFragment extends Fragment {
 
             @Override
             public void onLongItemClick(View view, int position) {
-
-                dao = new CepDAO(getActivity());
-                com.requisicoes.t7droid.cunsultafacilceps.model.CEP novoCep = new CEP();
-                com.requisicoes.t7droid.cunsultafacilceps.model.CEP cep = listaDeCeps.get(position);
-
-                if (!cep.getSelecionado().equals("true")) {
-                    cep.setSelecionado("true");
-                    novoCep.setCep(cep.getCep());
-                    novoCep.setLocalidade(cep.getLocalidade());
-
-                    if (!cep.getLogradouro().equals("")) {
-                        novoCep.setLogradouro(cep.getLogradouro());
-                    } else {
-                        novoCep.setLogradouro("");
-                    }
-
-                    if (!cep.getBairro().equals("")) {
-                        novoCep.setBairro(cep.getBairro());
-                    } else {
-                        novoCep.setBairro("");
-                    }
-
-                    novoCep.setDdd(cep.getDdd());
-                    novoCep.setIbge(cep.getIbge());
-                    novoCep.setUf(cep.getUf());
-                    if (!cep.getComplemento().equals("")) {
-                        novoCep.setComplemento(cep.getComplemento());
-                    } else {
-                        novoCep.setComplemento("");
-                    }
-
-                    if (dao.salvar(novoCep)) {
-                        enderecosAdapter.notifyDataSetChanged();
-                        mensagem("Endereço adicionado aos favoritos");
-                    } else {
-                        mensagem("Falha ao salvar Endereço");
-                    }
-                } else {
-                    mensagem("Esse endereço já está salvo nos favoritos");
-                }
+                salvarEndereço(position);
             }
 
             @Override
@@ -361,6 +323,49 @@ public class EnderecosFragment extends Fragment {
         return view;
     }
 
+    private void salvarEndereço(int posicao) {
+        dao = new CepDAO(getActivity());
+        com.requisicoes.t7droid.cunsultafacilceps.model.CEP novoCep = new CEP();
+        com.requisicoes.t7droid.cunsultafacilceps.model.CEP cep = listaDeCeps.get(posicao);
+
+        if (!cep.getSelecionado().equals("true")) {
+            cep.setSelecionado("true");
+            novoCep.setCep(cep.getCep());
+            novoCep.setLocalidade(cep.getLocalidade());
+
+            if (!cep.getLogradouro().equals("")) {
+                novoCep.setLogradouro(cep.getLogradouro());
+            } else {
+                novoCep.setLogradouro("");
+            }
+
+            if (!cep.getBairro().equals("")) {
+                novoCep.setBairro(cep.getBairro());
+            } else {
+                novoCep.setBairro("");
+            }
+
+            novoCep.setDdd(cep.getDdd());
+            novoCep.setIbge(cep.getIbge());
+            novoCep.setUf(cep.getUf());
+            if (!cep.getComplemento().equals("")) {
+                novoCep.setComplemento(cep.getComplemento());
+            } else {
+                novoCep.setComplemento("");
+            }
+
+            if (dao.salvar(novoCep)) {
+                enderecosAdapter.notifyDataSetChanged();
+                mensagem("Endereço adicionado aos favoritos");
+                playSound();
+            } else {
+                mensagem("Falha ao salvar Endereço");
+            }
+        } else {
+            mensagem("Esse endereço já está salvo nos favoritos");
+        }
+    }
+
     private void mensagem(String s) {
         Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
     }
@@ -560,17 +565,16 @@ public class EnderecosFragment extends Fragment {
                 } else {
                     mensagem("Falha na resposta" + response.code());
                 }
-
             }
 
-            private void mensagem(String s) {
-                Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
-            }
+            private void mensagem(String s) {Toast.makeText(getActivity(),s, Toast.LENGTH_LONG).show();}
 
             @Override
-            public void onFailure(Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call, Throwable t) {
-
-            }
+            public void onFailure(Call<List<com.requisicoes.t7droid.cunsultafacilceps.model.CEP>> call, Throwable t) {}
         });
+    }
+    private void playSound() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(getActivity(), R.raw.som_salvar);
+        mediaPlayer.start();
     }
 }

@@ -7,6 +7,14 @@
     android:orientation="vertical"
     tools:context=".activities.MainActivity">
 
+    <LinearLayout
+        android:id="@+id/adContainer"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/poeder_blue"
+        android:orientation="horizontal" />
+
     <com.ogaclejapan.smarttablayout.SmartTabLayout
         android:id="@+id/viewPagerTab"
         android:layout_width="match_parent"
@@ -51,5 +59,10 @@
         android:layout_height="match_parent"
         android:layout_below="@id/viewPagerTab"
         />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout_main"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"/>
 
 </LinearLayout>

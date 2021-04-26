@@ -1,5 +1,8 @@
 package com.t7droid.enderecosdobrasil.model;
 
+import androidx.annotation.Keep;
+
+@Keep
 public class Cidade {
     String codigo_ibge;
     String nome;
