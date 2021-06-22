@@ -1,3 +1,3 @@
-# Consulta-Cep >> README.md
+## Consulta-Cep
 
 Exemplo de requisições à api Viacep utilizando a lib Retrofit
